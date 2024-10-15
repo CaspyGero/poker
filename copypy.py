@@ -1,14 +1,16 @@
 from random import randint
-#INITIAL VARIABLES
-suits = ["hearts", "diamonds", "spades", "clubs"] #♥ ♦ ♣ ♠
+
+# INITIAL VARIABLES
+suits = ["hearts", "diamonds", "spades", "clubs"]  # ♥ ♦ ♣ ♠
 cardsPerSuit = ["A", 2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K"]
 cards = []
-#GENERATE THE CARDS
+
+# GENERATE THE CARDS
 for suit in suits:
     for card in cardsPerSuit:
         cards.append(suit + str(card))
+
 """
-TODO: REMOVE LATER
 COMBINATIONS:
 ROYAL FLUSH: STRAIGHT [10, A] OF THE SAME SUIT
 STRAIGHT FLUSH: STRAIGHT WITH CARDS OF THE SAME SUIT
@@ -21,7 +23,8 @@ TWO PAIR: 2 PAIRS
 PAIR: 2 IDENTICAL CARDS
 HIGH CARD: THE HIGHEST CARD
 """
-#DECLARE CLASSES
+
+# Declare classes
 class playerClass:
     def __init__(self, name: str, chips: int):
         self.name = name  # A string with the player's name
@@ -30,15 +33,18 @@ class playerClass:
         self.cards = []  # A list with the 2 cards given to the player
         self.playableCards = []  # A list with the cards in hand and the cards on the table
         self.bestHand = None  # Written as numbers, from 1 to 10
+
     def __str__(self):
         return f"The player {self.name} has {self.chips} chips."
+
 
 class playableCardsClass:
     def __init__(self, cards: list):
         self.cards = cards
         self.suits = []
         for i in range(0, 7):
-            self.suits.append(self.cards[i][:-1])
+            self.suits.append(self.cards[i][:-1])  # Extract the suit from the card representation
+
 
 class tableClass:
     def __init__(self, pot=0):
@@ -46,9 +52,12 @@ class tableClass:
         self.cards = []
 
 class hands:
+    @staticmethod
     def getSuits(cards):
-        suits = [card[:-1] for card in cards]
+        suits = [card[:-1] for card in cards]  # Extracts the suit from each card
         return suits
+
+    @staticmethod
     def count(elements, minimum):
         counter = {}
         for element in elements:
@@ -60,33 +69,37 @@ class hands:
             if quantity > minimum:
                 return True
         return False
+
+    @staticmethod
     def royalFlush(cards):
         suits = hands.getSuits(cards)
-        if hands.count(suits, 5):
-            return True
+        return hands.count(suits, 5)  # This logic needs to be defined properly
+
 players = []
 table = tableClass()
 numberOfPlayers = int(input("Number of players: "))
 initialChips = int(input("Enter the initial amount of chips for each player: "))
-#DEAL CARDS
+
+# Deal cards
 for i in range(numberOfPlayers):
     players.append(playerClass(input(f"Enter the name of player {i + 1}: "), initialChips))
     players[i].cards.append(cards.pop(randint(0, len(cards) - 1)))
     players[i].cards.append(cards.pop(randint(0, len(cards) - 1)))
+
 for i in range(5):
     table.cards.append(cards.pop(randint(0, len(cards) - 1)))
+
 for i in range(numberOfPlayers):
     players[i].playableCards = playableCardsClass(players[i].cards + table.cards)
 
-#TODO: ADD ROUNDS, BETS, AND VISUALS
+# TODO: ADD ROUNDS, BETS, AND SO ON
 
-#TODO: MAYBE CHANGE THIS TO A FUNCTION IN THE hands CLASS
-#CHECK POSSIBLE HANDS
+# Check possible hands
 for i in range(numberOfPlayers):
     if hands.royalFlush(players[i].playableCards.cards):
         players[i].bestHand = 10  # Assign a high rank if a royal flush is detected
 
-#TODO: REMOVE LATER
-for i in players:
-    print(i)
+# TODO: REMOVE LATER
+for player in players:
+    print(player)
 print(cards)
