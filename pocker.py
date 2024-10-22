@@ -1,12 +1,43 @@
 from random import randint
 #INITIAL VARIABLES
 suits = ["hearts", "diamonds", "spades", "clubs"] #♥ ♦ ♣ ♠
-cardsPerSuit = ["A", 2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K"]
+symbolsPerSuit = [2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K", "A"]
 cards = []
+class cardClass:
+    def assignValue(symbol):
+        values = {
+            "2" : 1,
+            "3" : 2,
+            "4" : 3,
+            "5" : 4,
+            "6" : 5,
+            "7" : 6,
+            "8" : 7,
+            "9" : 8,
+            "10" : 9,
+            "J" : 10,
+            "Q" : 11,
+            "K" : 12,
+            "A" : 13,
+        }
+        return values[symbol]
+    def __init__(self, suit, symbol):
+        self.suit = suit
+        self.symbol = symbol
+        self.value = cardClass.assignValue(symbol)
+    def __str__(self):
+        return suit + str(self.symbol)
+    def __add__(self, other):
+        if isinstance(other, cardClass):
+            return cardClass(self.suit + other.suit, self.symbol + other.symbol)
+        elif isinstance(other, tableClass):
+            return cardClass(self.suit + other.cards.suit, self.symbol + other.cards.symbol) #Looks weird but makes logic
+        else:
+            raise TypeError("Cannot add CardClass object with non-CardClass or non-tableClass object")
 #GENERATE THE CARDS
 for suit in suits:
-    for card in cardsPerSuit:
-        cards.append(suit + str(card))
+    for symbol in symbolsPerSuit:
+        cards.append(cardClass(suit, str(symbol)))
 """
 TODO: REMOVE LATER
 COMBINATIONS:
@@ -35,10 +66,8 @@ class playerClass:
 
 class playableCardsClass:
     def __init__(self, cards: list):
-        self.cards = cards
-        self.suits = []
-        for i in range(0, 7):
-            self.suits.append(self.cards[i][:-1])
+        self.cards = cards.symbol
+        self.suits = cards.suit
 
 class tableClass:
     def __init__(self, pot=0):
@@ -47,8 +76,7 @@ class tableClass:
 
 class hands:
     def getSuits(cards):
-        suits = [card[:-1] for card in cards]
-        return suits
+        return [card[:-1] for card in cards]
     def count(elements, minimum):
         counter = {}
         for element in elements:
@@ -60,22 +88,24 @@ class hands:
             if quantity > minimum:
                 return True
         return False
+    def flush(cards):
+        if(str(cards) in (str(symbolsPerSuit) + str(symbolsPerSuit))):
+            return True
     def royalFlush(cards):
         suits = hands.getSuits(cards)
         if hands.count(suits, 5):
-            return True
+            return True 
 players = []
 table = tableClass()
 numberOfPlayers = int(input("Number of players: "))
 initialChips = int(input("Enter the initial amount of chips for each player: "))
 #DEAL CARDS
+for i in range(5):
+    table.cards.append(cards.pop(randint(0, len(cards) - 1)))
 for i in range(numberOfPlayers):
     players.append(playerClass(input(f"Enter the name of player {i + 1}: "), initialChips))
     players[i].cards.append(cards.pop(randint(0, len(cards) - 1)))
     players[i].cards.append(cards.pop(randint(0, len(cards) - 1)))
-for i in range(5):
-    table.cards.append(cards.pop(randint(0, len(cards) - 1)))
-for i in range(numberOfPlayers):
     players[i].playableCards = playableCardsClass(players[i].cards + table.cards)
 
 #TODO: ADD ROUNDS, BETS, AND VISUALS
@@ -87,6 +117,8 @@ for i in range(numberOfPlayers):
         players[i].bestHand = 10  # Assign a high rank if a royal flush is detected
 
 #TODO: REMOVE LATER
+hands.flush([2, 3, 4, 5, 6, 7, 8])
 for i in players:
     print(i)
-print(cards)
+for i in cards:
+    print(i)
