@@ -77,6 +77,20 @@ class tableClass:
 class hands:
     def getSuits(cards):
         return [card[:-1] for card in cards]
+    def getPermutations(base: list) -> list:
+        if len(base) == 1:
+            return [base]
+        permutations = []
+        for i in range(len(base)):
+            actualIndex = [base[i]]
+            resto = base[:i] + base[i+1:]
+            for p in hands.getPermutations(resto):
+                permutations.append(actualIndex + p)
+        return permutations
+    def sublistCoincidence(list1, list2):
+        setList1 = {tuple(sublist) for sublist in list1}
+        setList2 = {tuple(sublist) for sublist in list2}
+        return bool(setList1 & setList2)
     def count(elements, minimum):
         counter = {}
         for element in elements:
@@ -88,13 +102,16 @@ class hands:
             if quantity > minimum:
                 return True
         return False
+    #I will use a lot: bool(set(lista1) & set(lista2))
     def flush(cards):
         if(str(cards) in (str(symbolsPerSuit) + str(symbolsPerSuit))):
             return True
     def royalFlush(cards):
+        #FIXME: DOESNT WORK AS EXPECTED
         suits = hands.getSuits(cards)
+        royal = [["10", "J", "Q", "K", "A"]] #Sublist with the only possible royal flush
         if hands.count(suits, 5):
-            return True 
+            return hands.sublistCoincidence(hands.getPermutations(cards), royal)
 players = []
 table = tableClass()
 numberOfPlayers = int(input("Number of players: "))
