@@ -3,6 +3,7 @@ from random import randint
 suits = ["hearts", "diamonds", "spades", "clubs"] #♥ ♦ ♣ ♠
 symbolsPerSuit = [2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K", "A"]
 cards = []
+#TODO: MAY BE TOO COMPLICATED, CONFIRM LATER
 class cardClass:
     def assignValue(symbol):
         values = {
@@ -60,23 +61,18 @@ class playerClass:
         self.bet = None  # An int with the player's bet
         self.cards = []  # A list with the 2 cards given to the player
         self.playableCards = []  # A list with the cards in hand and the cards on the table
-        self.bestHand = None  # Written as numbers, from 1 to 10
+        self.bestHand = None  # Written as a tuple of numbers, from 1 to 10, in the form of (type value, symbol value)
     def __str__(self):
         return f"The player {self.name} has {self.chips} chips."
-
 class playableCardsClass:
-    def __init__(self, cards: list):
-        self.cards = cards.symbol
-        self.suits = cards.suit
-
+    def __init__(self, suit, symbol):
+        self.suits = suit
+        self.symbols = symbol
 class tableClass:
     def __init__(self, pot=0):
         self.pot = pot
         self.cards = []
-
 class hands:
-    def getSuits(cards):
-        return [card[:-1] for card in cards]
     def getPermutations(base: list) -> list:
         if len(base) == 1:
             return [base]
@@ -91,6 +87,7 @@ class hands:
         setList1 = {tuple(sublist) for sublist in list1}
         setList2 = {tuple(sublist) for sublist in list2}
         return bool(setList1 & setList2)
+    #TODO: ONLY SAYS IF THE COUNT IS CORRECT, SHOULD RETURN A DICTIONARY WITH THE COUNT OF EVERY ELEMENT
     def count(elements, minimum):
         counter = {}
         for element in elements:
@@ -104,14 +101,15 @@ class hands:
         return False
     #I will use a lot: bool(set(lista1) & set(lista2))
     def flush(cards):
+        #TODO: CHECK IF IT WORKS, IT SHOULD
         if(str(cards) in (str(symbolsPerSuit) + str(symbolsPerSuit))):
             return True
-    def royalFlush(cards):
-        #FIXME: DOESNT WORK AS EXPECTED
-        suits = hands.getSuits(cards)
+    def royalFlush(suits, symbols):
+        #FIXME: DOESNT WORK AS EXPECTED, DOESNT CHECK IF THEY HAVE THE SAME SUIT
+        suits = suits
         royal = [["10", "J", "Q", "K", "A"]] #Sublist with the only possible royal flush
         if hands.count(suits, 5):
-            return hands.sublistCoincidence(hands.getPermutations(cards), royal)
+            return hands.sublistCoincidence(hands.getPermutations(symbols), royal)
 players = []
 table = tableClass()
 numberOfPlayers = int(input("Number of players: "))
@@ -123,14 +121,15 @@ for i in range(numberOfPlayers):
     players.append(playerClass(input(f"Enter the name of player {i + 1}: "), initialChips))
     players[i].cards.append(cards.pop(randint(0, len(cards) - 1)))
     players[i].cards.append(cards.pop(randint(0, len(cards) - 1)))
-    players[i].playableCards = playableCardsClass(players[i].cards + table.cards)
+    tempCards = players[i].cards + table.cards
+    players[i].playableCards = playableCardsClass(tempCards.suits, tempCards.symbols)
 
 #TODO: ADD ROUNDS, BETS, AND VISUALS
 
 #TODO: MAYBE CHANGE THIS TO A FUNCTION IN THE hands CLASS
 #CHECK POSSIBLE HANDS
 for i in range(numberOfPlayers):
-    if hands.royalFlush(players[i].playableCards.cards):
+    if hands.royalFlush(players[i].playableCards.suits, players[i].playableCards.symbols):
         players[i].bestHand = 10  # Assign a high rank if a royal flush is detected
 
 #TODO: REMOVE LATER
